@@ -6,7 +6,10 @@ from taxi.models import Manufacturer, Car
 
 class ModelsTest(TestCase):
     def setUp(self):
-        self.manufacturer = Manufacturer.objects.create(name="name", country="country")
+        self.manufacturer = Manufacturer.objects.create(
+            name="name",
+            country="country"
+        )
 
         self.driver = get_user_model().objects.create(
             username="user",
