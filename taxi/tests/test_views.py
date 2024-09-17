@@ -55,9 +55,15 @@ class PrivetCarTest(TestCase):
         self.client.force_login(self.driver)
 
     def test_retrieve_car_list(self):
-        car = Car.objects.create(model="test_model", manufacturer=self.manufacturer)
+        car = Car.objects.create(
+            model="test_model",
+            manufacturer=self.manufacturer
+        )
         car.drivers.add(self.driver)
-        car_1 = Car.objects.create(model="model_1", manufacturer=self.manufacturer)
+        car_1 = Car.objects.create(
+            model="model_1",
+            manufacturer=self.manufacturer
+        )
         car_1.drivers.add(self.driver)
         res = self.client.get(CAR_URL)
         self.assertEqual(res.status_code, 200)
