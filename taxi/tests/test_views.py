@@ -140,16 +140,18 @@ class PrivetCarTest(TestCase):
         car = Car.objects.create(
             model="Car",
             manufacturer=self.manufacturer,
-            driver=self.driver
         )
+        car.drivers.set([self.driver.id])
         form_data = {
             "model": "new car",
-            "manufacturer": self.manufacturer.id
+            "manufacturer": self.manufacturer.id,
+            "drivers": self.driver.id
         }
         resp = self.client.post(
             reverse("taxi:car-update", args=[car.id]),
             form_data
         )
+
         self.assertEqual(resp.status_code, 302)
         car.refresh_from_db()
         self.assertEqual(car.model, "new car")
