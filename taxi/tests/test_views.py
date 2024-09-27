@@ -81,7 +81,7 @@ class ManufacturerSearchFormTest(TestCase):
     def test_valid_data(self):
         form = ManufacturerSearchForm(data={"name": "Test Manufacturer"})
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data["name"], 'Test Manufacturer')
+        self.assertEqual(form.cleaned_data["name"], "Test Manufacturer")
 
     def test_empty_data(self):
         form = ManufacturerSearchForm(data={})
