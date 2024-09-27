@@ -23,7 +23,10 @@ class PrivetManufacturerTest(TestCase):
             password="driver55"
         )
         self.client.force_login(self.driver)
-        self.manufacturer = Manufacturer.objects.create(name="manufacturer test", country="Country")
+        self.manufacturer = Manufacturer.objects.create(
+            name="manufacturer test",
+            country="Country"
+        )
 
     def test_retrieve_manufacturer_list(self):
         Manufacturer.objects.create(name="test_1", country="test_country")
@@ -43,36 +46,47 @@ class PrivetManufacturerTest(TestCase):
             {"name": "New Manufacturer", "country": "Country"}
         )
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(Manufacturer.objects.filter(name="New Manufacturer").exists())
+        self.assertTrue(
+            Manufacturer.objects.filter(name="New Manufacturer").exists()
+        )
 
     def test_update_manufacturer(self):
+        form_data = {
+            "name": "Updated manufacturer",
+            "country": self.manufacturer.country
+        }
         response = self.client.post(
             reverse("taxi:manufacturer-update", args=[self.manufacturer.id]),
-            {"name": "Updated manufacturer", "country": self.manufacturer.country}
+            form_data
         )
         self.assertEqual(response.status_code, 302)
         self.manufacturer.refresh_from_db()
         self.assertEqual(self.manufacturer.name, "Updated manufacturer")
 
     def test_delete_manufacturer(self):
-        self.manufacturer = Manufacturer.objects.create(name="Manufacturer to delete")
+        self.manufacturer = Manufacturer.objects.create(
+            name="Manufacturer to delete"
+        )
         response = self.client.post(
             reverse("taxi:manufacturer-delete", args=[self.manufacturer.id])
         )
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(Manufacturer.objects.filter(name="Manufacturer to delete").exists())
+        self.assertFalse(
+            Manufacturer.objects.filter(
+                name="Manufacturer to delete"
+            ).exists())
 
 
 class ManufacturerSearchFormTest(TestCase):
     def test_valid_data(self):
-        form = ManufacturerSearchForm(data={'name': 'Test Manufacturer'})
+        form = ManufacturerSearchForm(data={"name": "Test Manufacturer"})
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['name'], 'Test Manufacturer')
+        self.assertEqual(form.cleaned_data["name"], 'Test Manufacturer')
 
     def test_empty_data(self):
         form = ManufacturerSearchForm(data={})
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['name'], '')
+        self.assertEqual(form.cleaned_data["name"], "")
 
 
 class PublicCarTest(TestCase):
@@ -141,7 +155,10 @@ class PrivetCarTest(TestCase):
         self.assertEqual(car.model, "new car")
 
     def test_delete_car(self):
-        car = Car.objects.create(model="Car to Delete", manufacturer=self.manufacturer)
+        car = Car.objects.create(
+            model="Car to Delete",
+            manufacturer=self.manufacturer
+        )
         response = self.client.post(reverse("taxi:car-delete", args=[car.id]))
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Car.objects.filter(id=car.id).exists())
@@ -149,14 +166,14 @@ class PrivetCarTest(TestCase):
 
 class CarSearchFormTest(TestCase):
     def test_valid_data(self):
-        form = CarSearchForm(data={'model': 'Test Model'})
+        form = CarSearchForm(data={"model": "Test Model"})
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['model'], 'Test Model')
+        self.assertEqual(form.cleaned_data["model"], "Test Model")
 
     def test_empty_data(self):
         form = CarSearchForm(data={})
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['model'], '')
+        self.assertEqual(form.cleaned_data["model"], "")
 
 
 class PublicDriverTest(TestCase):
@@ -211,19 +228,20 @@ class PrivetDriverTest(TestCase):
         self.assertEqual(self.driver.license_number, "ZXF87654")
 
     def test_delete_driver(self):
-        response = self.client.post(reverse("taxi:driver-delete", args=[self.driver_1.id]))
+        response = self.client.post(
+            reverse("taxi:driver-delete", args=[self.driver_1.id])
+        )
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Driver.objects.filter(id=self.driver_1.id).exists())
 
 
 class DriverSearchFormTest(TestCase):
     def test_valid_data(self):
-        form = DriverSearchForm(data={'username': 'TestDriver'})
+        form = DriverSearchForm(data={"username": "TestDriver"})
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['username'], 'TestDriver')
+        self.assertEqual(form.cleaned_data["username"], "TestDriver")
 
     def test_empty_data(self):
         form = DriverSearchForm(data={})
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['username'], '')
-
+        self.assertEqual(form.cleaned_data["username"], "")
