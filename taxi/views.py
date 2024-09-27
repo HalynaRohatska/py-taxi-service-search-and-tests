@@ -43,7 +43,7 @@ class ManufacturerListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 5
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super(ManufacturerListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         name = self.request.GET.get("name", "")
         context["search_form"] = ManufacturerSearchForm(
             initial={"name": name}
@@ -51,7 +51,7 @@ class ManufacturerListView(LoginRequiredMixin, generic.ListView):
         return context
 
     def get_queryset(self):
-        queryset = Manufacturer.objects.all()
+        queryset = super().get_queryset()
         form = ManufacturerSearchForm(self.request.GET)
         if form.is_valid():
             return queryset.filter(name__icontains=form.cleaned_data["name"])
@@ -80,7 +80,7 @@ class CarListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 5
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super(CarListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         model = self.request.GET.get("model", "")
         context["search_form"] = CarSearchForm(
             initial={"model": model}
@@ -121,7 +121,7 @@ class DriverListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 5
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super(DriverListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         username = self.request.GET.get("username", "")
         context["search_form"] = DriverSearchForm(
             initial={"username": username}
@@ -129,7 +129,7 @@ class DriverListView(LoginRequiredMixin, generic.ListView):
         return context
 
     def get_queryset(self):
-        queryset = Driver.objects.all()
+        queryset = super().get_queryset()
         form = DriverSearchForm(self.request.GET)
         if form.is_valid():
             return queryset.filter(
@@ -146,6 +146,7 @@ class DriverDetailView(LoginRequiredMixin, generic.DetailView):
 class DriverCreateView(LoginRequiredMixin, generic.CreateView):
     model = Driver
     form_class = DriverCreationForm
+    success_url = reverse_lazy("taxi:driver-list")
 
 
 class DriverLicenseUpdateView(LoginRequiredMixin, generic.UpdateView):
@@ -156,7 +157,7 @@ class DriverLicenseUpdateView(LoginRequiredMixin, generic.UpdateView):
 
 class DriverDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Driver
-    success_url = reverse_lazy("")
+    success_url = reverse_lazy("taxi:driver-list")
 
 
 @login_required
@@ -164,7 +165,7 @@ def toggle_assign_to_car(request, pk):
     driver = Driver.objects.get(id=request.user.id)
     if (
         Car.objects.get(id=pk) in driver.cars.all()
-    ):  # probably could check if car exists
+):
         driver.cars.remove(pk)
     else:
         driver.cars.add(pk)
