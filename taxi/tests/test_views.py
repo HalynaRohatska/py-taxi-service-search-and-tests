@@ -78,15 +78,58 @@ class PrivetManufacturerTest(TestCase):
 
 
 class ManufacturerSearchFormTest(TestCase):
-    def test_valid_data(self):
-        form = ManufacturerSearchForm(data={"name": "Test Manufacturer"})
-        self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data["name"], "Test Manufacturer")
+    def setUp(self):
+        self.manufacturer_1 = Manufacturer.objects.create(name="Man_1")
+        self.manufacturer_2 = Manufacturer.objects.create(name="Man_2")
+        self.manufacturer_3 = Manufacturer.objects.create(name="Man_3")
 
-    def test_empty_data(self):
+    def test_search_manufacturer_with_valid_data(self):
+        form = ManufacturerSearchForm(data={"name": "Man_1"})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["name"], self.manufacturer_1.name)
+
+    def test_search_manufacturer_with_part_data(self):
+        form = ManufacturerSearchForm(data={"name": "Man"})
+        self.assertTrue(form.is_valid())
+        queryset = Manufacturer.objects.filter(
+            name__icontains=form.cleaned_data.get("name")
+        )
+        self.assertEqual(
+            list(queryset),
+            [self.manufacturer_1, self.manufacturer_2, self.manufacturer_3]
+        )
+
+    def test_search_manufacturer_with_empty_data(self):
         form = ManufacturerSearchForm(data={})
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data["name"], "")
+        if not form.cleaned_data.get("name"):
+            queryset = Manufacturer.objects.all()
+        else:
+            queryset = Manufacturer.objects.filter(
+                name__icontains=form.cleaned_data.get("name")
+            )
+        self.assertEqual(
+            list(queryset),
+            [self.manufacturer_1, self.manufacturer_2, self.manufacturer_3]
+        )
+
+    def test_search_manufacturer_with_not_existing_data(self):
+        form = CarSearchForm(data={"model": "pibfg"})
+        self.assertTrue(form.is_valid())
+        queryset = Car.objects.filter(
+            model__icontains=form.cleaned_data.get("model")
+        )
+        self.assertEqual(list(queryset), [])
+
+    def test_search_manufacturer_with_invalid_data(self):
+        invalid_name = "m" * 300
+        form = ManufacturerSearchForm(data={"name": invalid_name})
+        self.assertFalse(form.is_valid())
+        queryset = Manufacturer.objects.filter(
+            name__icontains=invalid_name
+        )
+        self.assertEqual(list(queryset), [])
 
 
 class PublicCarTest(TestCase):
@@ -167,15 +210,56 @@ class PrivetCarTest(TestCase):
 
 
 class CarSearchFormTest(TestCase):
-    def test_valid_data(self):
-        form = CarSearchForm(data={"model": "Test Model"})
-        self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data["model"], "Test Model")
+    def setUp(self):
+        self.manufacturer = Manufacturer.objects.create(
+            name="test",
+            country="country"
+        )
+        self.car_1 = Car.objects.create(model="Car 1", manufacturer=self.manufacturer)
+        self.car_2 = Car.objects.create(model="Car 2", manufacturer=self.manufacturer)
+        self.car_3 = Car.objects.create(model="Car 3", manufacturer=self.manufacturer)
 
-    def test_empty_data(self):
+    def test_search_car_with_valid_data(self):
+        form = CarSearchForm(data={"model": "Car 1"})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["model"], self.car_1.model)
+
+    def test_search_car_with_part_data(self):
+        form = CarSearchForm(data={"model": "Ca"})
+        self.assertTrue(form.is_valid())
+        queryset = Car.objects.filter(
+            model__icontains=form.cleaned_data.get("model")
+        )
+        self.assertEqual(list(queryset), [self.car_1, self.car_2, self.car_3])
+
+    def test_search_car_with_empty_data(self):
         form = CarSearchForm(data={})
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data["model"], "")
+        if not form.cleaned_data.get("model"):
+            queryset = Car.objects.all()
+        else:
+            queryset = Car.objects.filter(
+                model__icontains=form.cleaned_data.get("model")
+            )
+        self.assertEqual(list(queryset), [self.car_1, self.car_2, self.car_3])
+
+    def test_search_car_with_not_existing_data(self):
+        form = CarSearchForm(data={"model": "pibfg"})
+        self.assertTrue(form.is_valid())
+        queryset = Car.objects.filter(
+            model__icontains=form.cleaned_data.get("model")
+        )
+        self.assertEqual(list(queryset), [])
+
+    def test_search_car_with_invalid_data(self):
+        invalid_model = "c" * 300
+        form = CarSearchForm(data={"model": invalid_model})
+        self.assertFalse(form.is_valid())
+        queryset = Car.objects.filter(
+            model__icontains=invalid_model
+        )
+        self.assertEqual(list(queryset), [])
 
 
 class PublicDriverTest(TestCase):
@@ -238,12 +322,61 @@ class PrivetDriverTest(TestCase):
 
 
 class DriverSearchFormTest(TestCase):
-    def test_valid_data(self):
-        form = DriverSearchForm(data={"username": "TestDriver"})
-        self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data["username"], "TestDriver")
+    def setUp(self):
+        self.driver_1 = Driver.objects.create(
+            username="john_test",
+            password="test985",
+            license_number="RTD85413"
+        )
+        self.driver_2 = Driver.objects.create(
+            username="sem_driver",
+            password="te214st",
+            license_number="JHG25794"
+        )
+        self.driver_3 = Driver.objects.create(
+            username="tom_drive",
+            password="8513test",
+            license_number="DVL98541"
+        )
 
-    def test_empty_data(self):
+    def test_search_with_valid_data(self):
+        form = DriverSearchForm(data={"username": "john_test"})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["username"], "john_test")
+
+    def test_search_with_part_data(self):
+        form = DriverSearchForm(data={"username": "driv"})
+        self.assertTrue(form.is_valid())
+        queryset = Driver.objects.filter(
+            username__icontains=form.cleaned_data.get("username")
+        )
+        self.assertEqual(list(queryset), [self.driver_2, self.driver_3])
+
+    def test_search_with_empty_data(self):
         form = DriverSearchForm(data={})
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data["username"], "")
+        if not form.cleaned_data.get("username"):
+            queryset = Driver.objects.all()
+        else:
+            queryset = Driver.objects.filter(
+                username__icontains=form.cleaned_data.get("username")
+            )
+        self.assertEqual(list(queryset), [self.driver_1, self.driver_2, self.driver_3])
+
+    def test_search_with_not_existing_data(self):
+        form = DriverSearchForm(data={"username": "mzws"})
+        self.assertTrue(form.is_valid())
+        queryset = Driver.objects.filter(
+            username__icontains=form.cleaned_data.get("username")
+        )
+        self.assertEqual(list(queryset), [])
+
+    def test_search_with_invalid_data(self):
+        invalid_username = "a" * 300
+        form = DriverSearchForm(data={"username": invalid_username})
+        self.assertFalse(form.is_valid())
+        queryset = Driver.objects.filter(
+            username__icontains=invalid_username
+        )
+        self.assertEqual(list(queryset), [])
+
