@@ -215,9 +215,18 @@ class CarSearchFormTest(TestCase):
             name="test",
             country="country"
         )
-        self.car_1 = Car.objects.create(model="Car 1", manufacturer=self.manufacturer)
-        self.car_2 = Car.objects.create(model="Car 2", manufacturer=self.manufacturer)
-        self.car_3 = Car.objects.create(model="Car 3", manufacturer=self.manufacturer)
+        self.car_1 = Car.objects.create(
+            model="Car 1",
+            manufacturer=self.manufacturer
+        )
+        self.car_2 = Car.objects.create(
+            model="Car 2",
+            manufacturer=self.manufacturer
+        )
+        self.car_3 = Car.objects.create(
+            model="Car 3",
+            manufacturer=self.manufacturer
+        )
 
     def test_search_car_with_valid_data(self):
         form = CarSearchForm(data={"model": "Car 1"})
@@ -350,7 +359,10 @@ class DriverSearchFormTest(TestCase):
         queryset = Driver.objects.filter(
             username__icontains=form.cleaned_data.get("username")
         )
-        self.assertEqual(list(queryset), [self.driver_2, self.driver_3])
+        self.assertEqual(
+            list(queryset),
+            [self.driver_2, self.driver_3]
+        )
 
     def test_search_with_empty_data(self):
         form = DriverSearchForm(data={})
@@ -361,7 +373,10 @@ class DriverSearchFormTest(TestCase):
             queryset = Driver.objects.filter(
                 username__icontains=form.cleaned_data.get("username")
             )
-        self.assertEqual(list(queryset), [self.driver_1, self.driver_2, self.driver_3])
+        self.assertEqual(
+            list(queryset),
+            [self.driver_1, self.driver_2, self.driver_3]
+        )
 
     def test_search_with_not_existing_data(self):
         form = DriverSearchForm(data={"username": "mzws"})
@@ -379,4 +394,3 @@ class DriverSearchFormTest(TestCase):
             username__icontains=invalid_username
         )
         self.assertEqual(list(queryset), [])
-
